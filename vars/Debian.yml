@@ -1,0 +1,10 @@
+---
+# on debian jessie, ipa-client-install does not exist
+freeipa_client__manual_install: True
+
+freeipa_client__packages_name:
+  - sssd
+  - libnss-sss
+  - libpam-sss
+  - krb5-user
+  - sudo

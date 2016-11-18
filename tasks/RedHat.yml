@@ -1,0 +1,13 @@
+---
+- name: Check if the mkhomedir feature is enabled
+  shell: 'grep USEMKHOMEDIR=yes /etc/sysconfig/authconfig'
+  register: ipaclient__mkhomedir
+  changed_when: False
+  failed_when: False
+  check_mode: no
+  tags: ['freeipa-client']
+
+- name: Enable the Make Homedirectory feature
+  shell: 'authconfig --enablemkhomedir --update'
+  when: ipaclient__mkhomedir.rc != 0
+  tags: ['freeipa-client']

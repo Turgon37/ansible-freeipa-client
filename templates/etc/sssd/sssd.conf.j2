@@ -1,0 +1,32 @@
+[domain/{{ freeipa_client__domain }}]
+cache_credentials = True
+krb5_store_password_if_offline = True
+ipa_domain = {{ freeipa_client__domain }}
+id_provider = ipa
+auth_provider = ipa
+access_provider = ipa
+ldap_tls_cacert = {{ freeipa_client__ca_path }}
+ipa_hostname = {{ ansible_fqdn }}
+chpass_provider = ipa
+ipa_server = _srv_, {{ freeipa_client__server }}
+dns_discovery_domain = {{ freeipa_client__domain }}
+
+[sssd]
+services = nss, sudo, pam, ssh
+config_file_version = 2
+domains = {{ freeipa_client__domain }}
+
+[nss]
+homedir_substring = /home
+
+[pam]
+
+[sudo]
+
+[autofs]
+
+[ssh]
+
+[pac]
+
+[ifp]

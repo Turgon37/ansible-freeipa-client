@@ -1,0 +1,34 @@
+#
+# {{ ansible_managed }}
+#
+
+includedir /var/lib/sss/pubconf/krb5.include.d/
+
+[libdefaults]
+  default_realm = {{ freeipa_client__domain | upper }}
+  dns_lookup_realm = false
+  dns_lookup_kdc = false
+  rdns = false
+  ticket_lifetime = 24h
+  forwardable = yes
+  udp_preference_limit = 0
+{% if freeipa_client__set_default_ccache_name %}
+  default_ccache_name = KEYRING:persistent:%{uid}
+{% endif %}
+
+[realms]
+  {{ freeipa_client__domain | upper }} = {
+    kdc = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos }}
+    master_kdc = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos }}
+    admin_server = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos_admin }}
+    default_domain = {{ freeipa_client__domain }}
+    pkinit_anchors = FILE:{{ freeipa_client__ca_path }}
+  }
+
+[domain_realm]
+  .{{ freeipa_client__domain }} = {{ freeipa_client__domain | upper }}
+  {{ freeipa_client__domain }} = {{ freeipa_client__domain | upper }}
+{% if ansible_domain != freeipa_client__domain %}
+  .{{ ansible_domain }} = {{ freeipa_client__domain | upper }}
+  {{ ansible_domain }} = {{ freeipa_client__domain | upper }}
+{% endif %}

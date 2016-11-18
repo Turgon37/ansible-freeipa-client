@@ -1,0 +1,59 @@
+---
+# IPA client configuration
+# --------------------------------
+
+# List of packages to install for giving the host the capability to query an ipa server
+freeipa_client__packages_name:
+  - ipa-client
+
+# If set to True the host configuration will be made be using
+# template and manual settings
+# If set to False (default) use the ipa-client-install command
+freeipa_client__manual_install: False
+  
+# the name of the sshd service
+freeipa_client__sshd_service_name: ssh
+
+# FreeIPA Server values
+# The full fqdn of the IPA server
+#freeipa_client__server: ipa.demo1.freeipa.org
+
+# The domain of the FreeIPA server
+#freeipa_client__domain: freeipa.org
+
+# The username of the administrative account
+freeipa_client__enroll_user: admin
+
+# The password of the administrative account
+#freeipa_client__enroll_pass: Secret123
+
+# The hostname to use when register to server
+#freeipa_client__hostname:
+
+# The path to the ipa client binary
+freeipa_client__install_command: '/sbin/ipa-client-install'
+
+# The path to certificate authority file
+freeipa_client__ca_path: '/etc/ipa/ca.crt'
+
+# Set the directive 'default_ccache_name' into /etc/krb5.conf to specify
+# the way to store the kerberos tickets ?
+freeipa_client__set_default_ccache_name: True
+
+# Enable NTP configuration on client
+freeipa_client__enable_ntp: True
+
+# This option tells SSSD to automatically update DNS with the IP address of this client
+freeipa_client__enable_dns_updates: True
+
+# If set to True the enrollment will overwrite the hostname entry if already exist
+freeipa_client__force_join: False
+
+# Associate all routable ip addresses of this host into the DNS
+freeipa_client__all_ip_addresses: True
+
+# Default port of Kerberos service on KDC
+freeipa_client__port_kerberos: 88
+
+# Default port of Kerberos admin service on KDC
+freeipa_client__port_kerberos_admin: 749
