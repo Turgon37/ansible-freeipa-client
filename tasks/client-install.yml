@@ -1,5 +1,12 @@
 ---
 # Perform installation with the ipa-client-install command
+- name: Check if host is enrolled
+  register: freeipaclient_ipaconf
+  check_mode: no
+  stat:
+    path: /etc/ipa/default.conf
+  tags: ['freeipa-client', 'client-install']
+
 - name: Assert required variables
   assert:
     that:
@@ -7,15 +14,9 @@
       - freeipa_client__domain is defined
       - freeipa_client__enroll_user is defined
       - freeipaclient_enroll_pass is defined
+  when: not freeipaclient_ipaconf.stat.exists
   tags: ['freeipa-client', 'client-install']
 
-- name: Check if host is enrolled
-  register: freeipaclient_ipaconf
-  check_mode: no
-  stat:
-    path: /etc/ipa/default.conf
-  tags: ['freeipa-client', 'client-install']
-  
 - name: Enroll host in domain
   become: true
   when: not freeipaclient_ipaconf.stat.exists
