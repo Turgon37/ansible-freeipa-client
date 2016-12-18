@@ -20,3 +20,11 @@
     backup: yes
   notify: [ 'restart sssd']
   tags: ['freeipa-client', 'manual-install']
+
+- name: Ensure SSSD is started and enabled on boot
+  service:
+    name: sssd
+    state: started
+    enabled: yes
+  changed_when: False
+  tags: ['freeipa-client', 'manual-install']
