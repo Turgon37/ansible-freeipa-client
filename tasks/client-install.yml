@@ -19,7 +19,6 @@
 
 - name: Enroll host in domain
   become: true
-  when: not freeipaclient_ipaconf.stat.exists
   command: >
     {{ freeipa_client__install_command }}
     {{'--hostname=' + freeipa_client__hostname if freeipa_client__hostname is defined else ''}}
@@ -34,4 +33,5 @@
     {{ '--all-ip-addresses' if freeipa_client__all_ip_addresses else ''}}
     {{ '--no-ntp' if not freeipa_client__enable_ntp else ''}}
     {{ '--force-join' if freeipa_client__force_join else ''}}
+  when: not freeipaclient_ipaconf.stat.exists
   tags: ['freeipa-client', 'client-install']
