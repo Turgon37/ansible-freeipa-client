@@ -3,14 +3,6 @@
   service:
     name: sssd
     state: restarted
-  tags: ['freeipa-client']
 
 - name: pam auth update
   shell: pam-auth-update --package
-  tags: ['freeipa-client']
-
-- name: restart sshd
-  service:
-    name: "{{ freeipa_client__sshd_service_name }}"
-    state: restarted
-  tags: ['freeipa-client']
