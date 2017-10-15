@@ -1,5 +1,11 @@
 ---
 
+- import_tasks: configure-manually.yml
+  when: ansible_os_family in ['Debian']
+
+- import_tasks: configure-client.yml
+  when: ansible_os_family in ['RedHat']
+
 - name: Create location hostgroup in FreeIPA server
   ipa_hostgroup:
     cn:          '{{ freeipa_client__ipa_hostgroup_name_pattern }}'
@@ -12,12 +18,6 @@
   register: _freeipa_client__location_hostgroup
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
-- import_tasks: configure-manually.yml
-  when: ansible_os_family in ['Debian']
-
-- import_tasks: configure-client.yml
-  when: ansible_os_family in ['RedHat']
-
 - name: Add this host to location hostgroup members in FreeIPA server
   ipa_hostgroup:
     cn:       '{{ freeipa_client__ipa_hostgroup_name_pattern }}'
@@ -27,7 +27,8 @@
     ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
     state:    present
   when: freeipa_client__ipa_hostgroup_name_pattern is defined and
-          _freeipa_client__location_hostgroup|success
+          _freeipa_client__location_hostgroup|success and
+          freeipa_client__ipa_fqdn not in _freeipa_client__location_hostgroup.hostgroup.member_host|d([])
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - import_tasks: configure-pam.yml
