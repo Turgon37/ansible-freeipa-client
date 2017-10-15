@@ -19,6 +19,7 @@
   register: _freeipa_client__hostgroups
   failed_when: "_freeipa_client__hostgroups.msg is defined and
         _freeipa_client__hostgroups.msg != 'response host_mod: no modifications to be performed'"
+  ignore_errors: true
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Add this host to location hostgroup members in FreeIPA server
@@ -36,6 +37,7 @@
   register: _freeipa_client__hostgroups_member
   failed_when: "_freeipa_client__hostgroups_member.msg is defined and
         _freeipa_client__hostgroups_member.msg != 'response host_mod: no modifications to be performed'"
+  ignore_errors: true
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - import_tasks: configure-pam.yml
