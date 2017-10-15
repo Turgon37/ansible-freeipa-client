@@ -24,13 +24,18 @@ freeipa_client__ipa_ns_os_version: '{{ ansible_distribution }} {{ ansible_distri
 ## FreeIPA Location hostgroup informations
 #freeipa_client__ipa_hostgroup_name_pattern:
 
-# FreeIPA Server values
+## FreeIPA Client configurations
+# Main configuration directory of ipa client
+freeipa_client__config_dir: /etc/ipa
+# The path to certificate authority file
+freeipa_client__ca_path: '{{ freeipa_client__config_dir }}/ca.crt'
+#freeipa_client__ca_checksum: 
 # The full fqdn of the IPA server to use for this host
 #freeipa_client__server: ipa.demo1.freeipa.org
-
 # The domain of the FreeIPA server
 #freeipa_client__domain: freeipa.org
 
+## Settings for ipa-client-install
 # The path to the ipa client binary
 freeipa_client__install_command: '/sbin/ipa-client-install'
 # Enable NTP configuration on client
@@ -42,7 +47,8 @@ freeipa_client__force_join: False
 # Associate all routable ip addresses of this host into the DNS
 freeipa_client__all_ip_addresses: True
 
-## FreeIPA authentification
+## FreeIPA authentification during enrollment
+#freeipa_client__ipa_delegate_to:
 # The hostname to use when register to server
 #freeipa_client__ipa_enroll_host:
 # The username of the administrative account
@@ -50,18 +56,18 @@ freeipa_client__all_ip_addresses: True
 # The password of the administrative account
 #freeipa_client__ipa_enroll_pass:
 
-## PAM
+## PAM settings
 freeipa_client__enable_make_homedir: false
 freeipa_client__enable_make_homedir_profile_name: mkhomedir
 
 ## Kerberos
 freeipa_client__krb_config_file: /etc/krb5.conf
+freeipa_client__krb_keytab: /etc/krb5.keytab
+freeipa_client__krb_keytab_tmp_file: /tmp/{{ inventory_hostname }}.keytab
 # Default port of Kerberos service on KDC
 freeipa_client__krb_port: 88
 # Default port of Kerberos admin service on KDC
 freeipa_client__krb_admin_port: 749
-# The path to certificate authority file
-freeipa_client__ca_path: '/etc/ipa/ca.crt'
 # Set the directive 'default_ccache_name' into /etc/krb5.conf to specify
 # the way to store the kerberos tickets ?
 freeipa_client__set_default_ccache_name: True

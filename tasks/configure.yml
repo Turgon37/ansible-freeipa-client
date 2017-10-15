@@ -10,6 +10,7 @@
     state:       present
   when: freeipa_client__ipa_hostgroup_name_pattern is defined
   register: _freeipa_client__location_hostgroup
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - import_tasks: configure-manually.yml
   when: ansible_os_family in ['Debian']
@@ -27,5 +28,6 @@
     state:    present
   when: freeipa_client__ipa_hostgroup_name_pattern is defined and
           _freeipa_client__location_hostgroup|success
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - import_tasks: configure-pam.yml

@@ -16,6 +16,69 @@
   register: _freeipa_client__manual_host_register
   failed_when: "_freeipa_client__manual_host_register.msg is defined and
         _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
+
+
+## IPA client configuration
+
+
+- name: Ensure configuration directory exists
+  file:
+    path:  "{{ freeipa_client__config_dir }}"
+    owner: root
+    group: root
+    mode:  0755
+    state: directory
+
+- name: Download ipa certificate to host
+  get_url:
+    url:  'http://{{ freeipa_client__ipa_enroll_host }}/ipa/config/ca.crt'
+    dest: '{{ freeipa_client__ca_path }}'
+    mode: 0644
+    checksum: '{{ freeipa_client__ca_checksum|d(omit) }}'
+
+
+## Keytab deployement
+
+
+- name: Check status of keytab
+  stat:
+    path: '{{ freeipa_client__krb_keytab }}'
+  register: _freeipa_client__keytab_status
+  check_mode: no
+
+- name: Generate new keytab on ipa master
+  command: 'ipa-getkeytab --principal host/{{ ansible_fqdn }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}'
+  when: not _freeipa_client__keytab_status.stat.exists
+  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
+
+- name: Fetch keytab from ipa master
+  fetch:
+    src: '{{ freeipa_client__krb_keytab_tmp_file }}'
+    dest: '{{ freeipa_client__krb_keytab_tmp_file }}'
+    flat: yes
+  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
+
+- name: Secure erase keytab on ipa master
+  command: 'shred -u {{ freeipa_client__krb_keytab_tmp_file }}'
+  when: not _freeipa_client__keytab_status.stat.exists
+  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
+
+- name: Copy keytab to final host
+  copy:
+    src: '{{ freeipa_client__krb_keytab_tmp_file }}'
+    dest: '{{ freeipa_client__krb_keytab }}'
+  when: not _freeipa_client__keytab_status.stat.exists
+
+- name: Secure erase keytab on Ansible executor
+  become: no
+  command: 'shred -u {{ freeipa_client__krb_keytab_tmp_file }}'
+  when: not _freeipa_client__keytab_status.stat.exists
+  delegate_to: 'localhost'
+
+
+# SSSD
+
 
 - name: Install and configure SSSD
   include_role:
