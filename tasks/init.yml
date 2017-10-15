@@ -17,4 +17,5 @@
                                         )|unique }}"
   with_items: '{{ ansible_interfaces }}'
   when: not item|match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") and
-        'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname]
+        'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname] and
+        'macaddress' in hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]
