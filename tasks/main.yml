@@ -15,8 +15,8 @@
 - import_tasks: init.yml
   tags: ['always']
 
-#- import_tasks: install.yml
-  #tags: ['freeipa-client', 'freeipa-client-install']
+- import_tasks: install.yml
+  tags: ['freeipa-client', 'freeipa-client-install']
 
 - import_tasks: configure.yml
   tags: ['freeipa-client', 'freeipa-client-configure']
