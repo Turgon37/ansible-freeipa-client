@@ -16,6 +16,7 @@
     state:       present
   when: freeipa_client__ipa_hostgroup_name_pattern is defined
   register: _freeipa_client__location_hostgroup
+  ignore_errors: true
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Add this host to location hostgroup members in FreeIPA server
