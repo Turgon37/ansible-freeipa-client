@@ -1,0 +1,54 @@
+---
+
+- name: Register host to FreeIPA server
+  ipa_host:
+    description:          '{{ freeipa_client__ipa_description|d(omit) }}'
+    fqdn:                 '{{ freeipa_client__ipa_fqdn }}'
+    ip_address:           '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
+    mac_address:          '{{ _freeipa_client__mac_addresses|d([]) }}'
+    ns_hardware_platform: '{{ freeipa_client__ipa_ns_hardware_platform|d(omit) }}'
+    ns_host_location:     '{{ freeipa_client__ipa_ns_host_location|d(omit) }}'
+    ns_os_version:        '{{ freeipa_client__ipa_ns_os_version }}'
+    ipa_host:             '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass:             '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user:             '{{ freeipa_client__ipa_enroll_user }}'
+    state:                present
+  register: _freeipa_client__manual_host_register
+  failed_when: "_freeipa_client__manual_host_register.msg is defined and
+        _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
+
+- name: Install and configure SSSD
+  include_role:
+    name: sssd
+  vars:
+    sssd__services:
+      - nss
+      - sudo
+      - pam
+      - ssh
+    sssd__service_nss_settings:
+      homedir_substring: /home
+    sssd__domains: ['{{ freeipa_client__domain }}']
+    sssd__domains_settings: "{{ {}|combine({
+      freeipa_client__domain: {
+        'cache_credentials': 'True',
+        'krb5_store_password_if_offline': 'True',
+        'id_provider': 'ipa',
+        'auth_provider': 'ipa',
+        'access_provider': 'ipa',
+        'chpass_provider': 'ipa',
+        'ipa_domain': freeipa_client__domain,
+        'ldap_tls_cacert': freeipa_client__ca_path,
+        'ipa_hostname': ansible_fqdn,
+        'ipa_server': ['_srv_', freeipa_client__server]|join(', '),
+        'dns_discovery_domain': freeipa_client__domain,
+      }
+    }) }}"
+
+- name: Setup krb5.conf
+  template:
+    src:   krb5.conf.j2
+    dest:  '{{ freeipa_client__krb_config_file }}'
+    owner: root
+    group: root
+    mode:  0644

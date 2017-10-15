@@ -1,0 +1,7 @@
+---
+
+- name: Install Free IPA Client packages
+  package:
+    name: '{{ item }}'
+    state: present
+  with_items: '{{ freeipa_client__packages_names }}'

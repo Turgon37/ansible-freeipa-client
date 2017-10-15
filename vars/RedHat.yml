@@ -1,4 +1,5 @@
 ---
-freeipa_client__packages_name:
+
+freeipa_client__packages_names:
   - ipa-client
   - dbus-python

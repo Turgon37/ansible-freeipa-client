@@ -1,8 +1,5 @@
 ---
-- name: restart sssd
-  service:
-    name: sssd
-    state: restarted
+# handlers file for freeipa-client
 
-- name: pam auth update
-  shell: pam-auth-update --package
+- name: pam-auth-update
+  command: pam-auth-update --package

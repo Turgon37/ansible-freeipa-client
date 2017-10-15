@@ -1,0 +1,41 @@
+---
+
+- name: Add pam_mkhomedir for Debian machines
+  copy:
+    src: pam_mkhomedir
+    dest: '/usr/share/pam-configs/{{ freeipa_client__enable_make_homedir_profile_name }}'
+  when: ansible_os_family == 'Debian' and freeipa_client__enable_make_homedir
+  notify: ['pam-auth-update']
+
+- name: Disable pam_mkhomedir for Debian machines
+  command: 'pam-auth-update --remove {{ freeipa_client__enable_make_homedir_profile_name }}'
+  when: ansible_os_family == 'Debian' and not freeipa_client__enable_make_homedir
+
+- name: Remove pam_mkhomedir for Debian machines
+  file:
+    path: '/usr/share/pam-configs/{{ freeipa_client__enable_make_homedir_profile_name }}'
+    state: absent
+  when: ansible_os_family == 'Debian' and not freeipa_client__enable_make_homedir
+
+#- name: Create symbolic link for sasl2 lib because sssd does not found them
+  #file:
+    #src: "/usr/lib/arm-linux-gnueabihf/sasl2"
+    #dest: "/usr/lib/sasl2"
+    #state: link
+  #when: ansible_os_family == 'Debian' and ansible_machine|search("arm") and False
+
+- name: Check if the mkhomedir feature is enabled for RedHat machines
+  command: 'grep USEMKHOMEDIR=yes /etc/sysconfig/authconfig'
+  when: ansible_os_family == 'RedHat'
+  register: _freeipa_client__mkhomedir
+  changed_when: False
+  failed_when: _freeipa_client__mkhomedir.rc == 2
+  check_mode: no
+
+- name: Enable mkhomedir feature for RedHat machines
+  command: 'authconfig --enablemkhomedir --update'
+  when: ansible_os_family == 'RedHat' and freeipa_client__enable_make_homedir and _freeipa_client__mkhomedir.rc != 0
+
+- name: Disable mkhomedir feature for RedHat machines
+  command: 'authconfig --disablemkhomedir --update'
+  when: ansible_os_family == 'RedHat' and not freeipa_client__enable_make_homedir and _freeipa_client__mkhomedir.rc == 0

@@ -1,0 +1,20 @@
+---
+
+- name: Assert required variables
+  assert:
+    that:
+      - freeipa_client__domain is defined
+      - freeipa_client__server is defined
+      - freeipa_client__ipa_enroll_host is defined
+      - freeipa_client__ipa_enroll_user is defined
+      - freeipa_client__ipa_enroll_pass  is defined
+
+- name: Retrieve all MAC addresses
+  set_fact:
+    _freeipa_client__mac_addresses: "{{ (
+                                          _freeipa_client__mac_addresses|d([]) +
+                                          [ hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress'] ]
+                                        )|unique }}"
+  with_items: '{{ ansible_interfaces }}'
+  when: not item|match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") and
+        'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname]

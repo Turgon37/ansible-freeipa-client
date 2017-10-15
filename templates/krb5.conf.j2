@@ -5,7 +5,7 @@
 includedir /var/lib/sss/pubconf/krb5.include.d/
 
 [libdefaults]
-  default_realm = {{ freeipa_client__domain | upper }}
+  default_realm = {{ freeipa_client__domain|upper }}
   dns_lookup_realm = false
   dns_lookup_kdc = false
   rdns = false
@@ -18,9 +18,9 @@ includedir /var/lib/sss/pubconf/krb5.include.d/
 
 [realms]
   {{ freeipa_client__domain | upper }} = {
-    kdc = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos }}
-    master_kdc = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos }}
-    admin_server = {{ freeipa_client__server }}:{{ freeipa_client__port_kerberos_admin }}
+    kdc = {{ freeipa_client__server }}:{{ freeipa_client__krb_port }}
+    master_kdc = {{ freeipa_client__server }}:{{ freeipa_client__krb_port }}
+    admin_server = {{ freeipa_client__server }}:{{ freeipa_client__krb_admin_port }}
     default_domain = {{ freeipa_client__domain }}
     pkinit_anchors = FILE:{{ freeipa_client__ca_path }}
   }

@@ -1,31 +1,25 @@
 ---
+# tasks file for freeipa-client
+
 - name: Include the OS specific variables
   include_vars: "{{ item }}"
   with_first_found:
     - files:
+        - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
         - "{{ ansible_distribution }}.yml"
         - "{{ ansible_os_family }}.yml"
+        - "defaults.yml"
       skip: true
-  tags: ['freeipa-client']
+  tags: ['always']
 
-- name: Install the latest version of IPA Client tools
-  package:
-    name: '{{ item }}'
-    state: latest
-  with_items:
-    - '{{ freeipa_client__packages_name }}'
-  tags: ['freeipa-client']
+- import_tasks: init.yml
+  tags: ['always']
 
-- name: Configure ipa client manually
-  include: "manual-install.yml"
-  when: freeipa_client__manual_install
-  tags: ['freeipa-client']
-  
-- name: Configure ipa client using ipa-client-install
-  include: "client-install.yml"
-  when: not freeipa_client__manual_install
-  tags: ['freeipa-client']
+#- import_tasks: install.yml
+  #tags: ['freeipa-client', 'freeipa-client-install']
 
-- name: Run the OS specific post install tasks
-  include: "{{ ansible_os_family }}.yml"
-  tags: ['freeipa-client']
+- import_tasks: configure.yml
+  tags: ['freeipa-client', 'freeipa-client-configure']
+
+- import_tasks: service.yml
+  tags: ['freeipa-client', 'freeipa-client-service']

@@ -1,24 +1,14 @@
 ---
+
 # Perform installation with the ipa-client-install command
+
 - name: Check if host is enrolled
-  register: freeipaclient_ipaconf
-  check_mode: no
   stat:
     path: /etc/ipa/default.conf
-  tags: ['freeipa-client', 'client-install']
+  register: _freeipa_client_ipaconf
+  check_mode: no
 
-- name: Assert required variables
-  assert:
-    that:
-      - freeipa_client__server is defined
-      - freeipa_client__domain is defined
-      - freeipa_client__enroll_user is defined
-      - freeipaclient_enroll_pass is defined
-  when: not freeipaclient_ipaconf.stat.exists
-  tags: ['freeipa-client', 'client-install']
-
-- name: Enroll host in domain
-  become: true
+- name: Enroll host in FreeIPA master
   command: >
     {{ freeipa_client__install_command }}
     {{'--hostname=' + freeipa_client__hostname if freeipa_client__hostname is defined else ''}}
@@ -27,11 +17,10 @@
     --principal={{ freeipa_client__enroll_user }}
     --password={{ freeipa_client__enroll_pass }}
     --ssh-trust-dns
-    --mkhomedir
-    {{ '--enable-dns-updates' if freeipa_client__enable_dns_updates else ''}}
+    {% if freeipa_client__enable_make_homedir %}--mkhomedir{% endif %}
+    {% if freeipa_client__enable_dns_updates %}--enable-dns-updates{% endif %}
     --unattended
     {{ '--all-ip-addresses' if freeipa_client__all_ip_addresses else ''}}
     {{ '--no-ntp' if not freeipa_client__enable_ntp else ''}}
     {{ '--force-join' if freeipa_client__force_join else ''}}
-  when: not freeipaclient_ipaconf.stat.exists
-  tags: ['freeipa-client', 'client-install']
+  when: not _freeipa_client_ipaconf.stat.exists
