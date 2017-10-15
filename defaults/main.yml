@@ -21,8 +21,8 @@ freeipa_client__ipa_mac_address: '{{ _freeipa_client__mac_addresses|d([]) }}'
 #freeipa_client__ipa_ns_host_location: ''
 freeipa_client__ipa_ns_os_version: '{{ ansible_distribution }} {{ ansible_distribution_version }} ({{ ansible_distribution_release }})'
 
-## FreeIPA Location hostgroup informations
-#freeipa_client__ipa_hostgroup_name_pattern:
+## FreeIPA hostgroup informations
+freeipa_client__ipa_hostgroups_rules: []
 
 ## FreeIPA Client configurations
 # Main configuration directory of ipa client

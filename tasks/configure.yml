@@ -1,35 +1,42 @@
 ---
 
-- import_tasks: configure-manually.yml
-  when: ansible_os_family in ['Debian']
+#- import_tasks: configure-manually.yml
+  #when: ansible_os_family in ['Debian']
 
-- import_tasks: configure-client.yml
-  when: ansible_os_family in ['RedHat']
+#- import_tasks: configure-client.yml
+  #when: ansible_os_family in ['RedHat']
 
-- name: Create location hostgroup in FreeIPA server
+- name: Create hostgroups in FreeIPA server
   ipa_hostgroup:
-    cn:          '{{ freeipa_client__ipa_hostgroup_name_pattern }}'
-    description: 'Servers physically located to {{ freeipa_client__ipa_ns_host_location }}'
+    cn:          '{{ item.name }}'
+    description: "{{ item.description|d('') }}"
+    hostgroup:   '{{ item.hostgroup|d(omit) }}'
     ipa_host:    '{{ freeipa_client__ipa_enroll_host }}'
     ipa_pass:    '{{ freeipa_client__ipa_enroll_pass }}'
     ipa_user:    '{{ freeipa_client__ipa_enroll_user }}'
-    state:       present
-  when: freeipa_client__ipa_hostgroup_name_pattern is defined
-  register: _freeipa_client__location_hostgroup
-  ignore_errors: true
+    state:       "{{ item.state|d('present') }}"
+  with_items: '{{ freeipa_client__ipa_hostgroups_rules }}'
+  register: _freeipa_client__hostgroups
+  failed_when: "_freeipa_client__hostgroups.msg is defined and
+        _freeipa_client__hostgroups.msg != 'response host_mod: no modifications to be performed'"
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Add this host to location hostgroup members in FreeIPA server
+  #debug: var='item.hostgroup.member_host|d([]) + [freeipa_client__ipa_fqdn]'
   ipa_hostgroup:
-    cn:       '{{ freeipa_client__ipa_hostgroup_name_pattern }}'
-    host:     '{{ _freeipa_client__location_hostgroup.hostgroup.member_host|d([]) + [freeipa_client__ipa_fqdn] }}'
+    cn:       '{{ item.hostgroup.cn[0] }}'
+    host:     '{{ item.hostgroup.member_host|d([]) + [freeipa_client__ipa_fqdn] }}'
     ipa_host: '{{ freeipa_client__ipa_enroll_host }}'
     ipa_pass: '{{ freeipa_client__ipa_enroll_pass }}'
     ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
-    state:    present
-  when: freeipa_client__ipa_hostgroup_name_pattern is defined and
-          _freeipa_client__location_hostgroup|success and
-          freeipa_client__ipa_fqdn not in _freeipa_client__location_hostgroup.hostgroup.member_host|d([])
+    state:    "{{ item.state|d('present') }}"
+  with_items: '{{ _freeipa_client__hostgroups.results }}'
+  when: _freeipa_client__hostgroups|success and
+          item.hostgroup.cn|length == 1 and
+          freeipa_client__ipa_fqdn not in item.hostgroup.member_host|d([])
+  register: _freeipa_client__hostgroups_member
+  failed_when: "_freeipa_client__hostgroups_member.msg is defined and
+        _freeipa_client__hostgroups_member.msg != 'response host_mod: no modifications to be performed'"
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - import_tasks: configure-pam.yml
