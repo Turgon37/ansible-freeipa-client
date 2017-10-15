@@ -57,6 +57,7 @@
     src: '{{ freeipa_client__krb_keytab_tmp_file }}'
     dest: '{{ freeipa_client__krb_keytab_tmp_file }}'
     flat: yes
+  when: not _freeipa_client__keytab_status.stat.exists
   delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
 
 - name: Secure erase keytab on ipa master
