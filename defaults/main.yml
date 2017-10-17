@@ -34,6 +34,7 @@ freeipa_client__ca_path: '{{ freeipa_client__config_dir }}/ca.crt'
 #freeipa_client__server: ipa.demo1.freeipa.org
 # The domain of the FreeIPA server
 #freeipa_client__domain: freeipa.org
+freeipa_client__realm: '{{ freeipa_client__domain|upper }}'
 
 ## Settings for ipa-client-install
 # The path to the ipa client binary
@@ -61,17 +62,10 @@ freeipa_client__enable_make_homedir: false
 freeipa_client__enable_make_homedir_profile_name: mkhomedir
 
 ## Kerberos
-freeipa_client__krb_config_file: /etc/krb5.conf
-freeipa_client__krb_keytab: /etc/krb5.keytab
-freeipa_client__krb_keytab_tmp_file: /tmp/{{ inventory_hostname }}.keytab
-# Default port of Kerberos service on KDC
-freeipa_client__krb_port: 88
-# Default port of Kerberos admin service on KDC
-freeipa_client__krb_admin_port: 749
-# Set the directive 'default_ccache_name' into /etc/krb5.conf to specify
-# the way to store the kerberos tickets ?
-freeipa_client__set_default_ccache_name: True
-
+# Kerberos principal format
+freeipa_client__keytab_principal: 'host/{{ ansible_fqdn }}'
+# Temporary file in which to store Keytab during exchanges
+freeipa_client__krb_keytab_tmp_file: '/tmp/{{ inventory_hostname }}.keytab'
 
 # Working values
 _freeipa_client__mac_addresses: []

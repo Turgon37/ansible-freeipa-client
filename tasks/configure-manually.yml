@@ -38,44 +38,41 @@
     checksum: '{{ freeipa_client__ca_checksum|d(omit) }}'
 
 
-## Keytab deployement
+### KERBEROS
 
 
-- name: Check status of keytab
-  stat:
-    path: '{{ freeipa_client__krb_keytab }}'
-  register: _freeipa_client__keytab_status
-  check_mode: no
+- name: Install and configure Kerberos in client mode
+  include_role:
+    name: kerberos-client
+  vars:
+    kerberos_client__keytab_deploy_remote_host: '{{ freeipa_client__ipa_enroll_host }}'
+    kerberos_client__keytab_principal: '{{ freeipa_client__keytab_principal }}'
+    kerberos_client__keytab_deploy_tmp_file: '{{ freeipa_client__krb_keytab_tmp_file }}'
+    kerberos_client__keytab_deploy_remote_genkey_command: 'ipa-getkeytab --principal {{ freeipa_client__keytab_principal }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}'
+    kerberos_client__include_dirs:
+      - /var/lib/sss/pubconf/krb5.include.d/
+    kerberos_client__defaults:
+      default_realm: '{{ freeipa_client__realm }}'
+      dns_lookup_realm: 'false'
+      dns_lookup_kdc: 'false'
+      rdns: 'false'
+      ticket_lifetime: 24h
+      forwardable: 'yes'
+      udp_preference_limit: 0
+    kerberos_client__realms: "{{ {}|combine({
+      freeipa_client__realm: {
+        'kdc': freeipa_client__server,
+        'master_kdc': freeipa_client__server,
+        'admin_server': freeipa_client__server,
+        'default_domain': freeipa_client__domain,
+        'pkinit_anchors': 'FILE:'~freeipa_client__ca_path
+      }
+    }) }}"
+    kerberos_client__domains: "{{
+      {freeipa_client__domain: freeipa_client__realm}|
+        combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )
+     }}"
 
-- name: Generate new keytab on ipa master
-  command: 'ipa-getkeytab --principal host/{{ ansible_fqdn }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}'
-  when: not _freeipa_client__keytab_status.stat.exists
-  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
-
-- name: Fetch keytab from ipa master
-  fetch:
-    src: '{{ freeipa_client__krb_keytab_tmp_file }}'
-    dest: '{{ freeipa_client__krb_keytab_tmp_file }}'
-    flat: yes
-  when: not _freeipa_client__keytab_status.stat.exists
-  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
-
-- name: Secure erase keytab on ipa master
-  command: 'shred -u {{ freeipa_client__krb_keytab_tmp_file }}'
-  when: not _freeipa_client__keytab_status.stat.exists
-  delegate_to: "{{ freeipa_client__ipa_enroll_host }}"
-
-- name: Copy keytab to final host
-  copy:
-    src: '{{ freeipa_client__krb_keytab_tmp_file }}'
-    dest: '{{ freeipa_client__krb_keytab }}'
-  when: not _freeipa_client__keytab_status.stat.exists
-
-- name: Secure erase keytab on Ansible executor
-  become: no
-  command: 'shred -u {{ freeipa_client__krb_keytab_tmp_file }}'
-  when: not _freeipa_client__keytab_status.stat.exists
-  delegate_to: 'localhost'
 
 
 # SSSD
@@ -108,11 +105,3 @@
         'dns_discovery_domain': freeipa_client__domain,
       }
     }) }}"
-
-- name: Setup krb5.conf
-  template:
-    src:   krb5.conf.j2
-    dest:  '{{ freeipa_client__krb_config_file }}'
-    owner: root
-    group: root
-    mode:  0644
