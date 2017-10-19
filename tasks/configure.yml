@@ -6,6 +6,79 @@
 - include_tasks: configure-client.yml
   when: ansible_os_family in ['RedHat']
 
+
+### KERBEROS
+
+
+- name: Install and configure Kerberos in client mode
+  include_role:
+    name: kerberos-client
+  vars:
+    kerberos_client__keytab_deploy_remote_host: '{{ freeipa_client__ipa_enroll_host }}'
+    kerberos_client__keytab_principal: '{{ freeipa_client__keytab_principal }}'
+    kerberos_client__keytab_deploy_tmp_file: '{{ freeipa_client__krb_keytab_tmp_file }}'
+    # echo {{ ipa_pw }} | kinit {{ ipa_user }}; ipa-getkeytab --principal {{ freeipa_client__keytab_principal }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}
+    kerberos_client__keytab_deploy_remote_genkey_command: 'ipa-getkeytab --principal {{ freeipa_client__keytab_principal }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}'
+    kerberos_client__include_dirs:
+      - /var/lib/sss/pubconf/krb5.include.d/
+    kerberos_client__defaults:
+      default_realm: '{{ freeipa_client__realm }}'
+      dns_lookup_realm: 'false'
+      dns_lookup_kdc: 'false'
+      rdns: 'false'
+      ticket_lifetime: 24h
+      forwardable: 'true'
+      udp_preference_limit: 0
+    kerberos_client__realms: "{{ {}|combine({
+      freeipa_client__realm: {
+        'kdc': freeipa_client__server,
+        'master_kdc': freeipa_client__server,
+        'admin_server': freeipa_client__server,
+        'default_domain': freeipa_client__domain,
+        'pkinit_anchors': 'FILE:'~freeipa_client__ca_path
+      }
+    }) }}"
+    kerberos_client__domains: "{{
+      {freeipa_client__domain: freeipa_client__realm}|
+        combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )
+     }}"
+
+
+
+# SSSD
+
+
+- name: Install and configure SSSD
+  include_role:
+    name: sssd
+  vars:
+    sssd__services:
+      - nss
+      - sudo
+      - pam
+      - ssh
+    sssd__service_nss_settings:
+      homedir_substring: /home
+    sssd__domains: ['{{ freeipa_client__domain }}']
+    sssd__domains_settings: "{{ {}|combine({
+      freeipa_client__domain: {
+        'cache_credentials': 'True',
+        'krb5_store_password_if_offline': 'True',
+        'id_provider': 'ipa',
+        'auth_provider': 'ipa',
+        'access_provider': 'ipa',
+        'chpass_provider': 'ipa',
+        'ipa_domain': freeipa_client__domain,
+        'ldap_tls_cacert': freeipa_client__ca_path,
+        'ipa_hostname': ansible_fqdn,
+        'ipa_server': ['_srv_', freeipa_client__server]|join(', '),
+        'dns_discovery_domain': freeipa_client__domain,
+      }
+    }) }}"
+
+
+
+
 - name: Create hostgroups in FreeIPA server
   ipa_hostgroup:
     cn:          '{{ item.name }}'
