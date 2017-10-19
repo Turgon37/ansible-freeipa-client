@@ -20,7 +20,7 @@
     # echo {{ ipa_pw }} | kinit {{ ipa_user }}; ipa-getkeytab --principal {{ freeipa_client__keytab_principal }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}
     kerberos_client__keytab_deploy_remote_genkey_command: 'ipa-getkeytab --principal {{ freeipa_client__keytab_principal }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}'
     kerberos_client__include_dirs:
-      - /var/lib/sss/pubconf/krb5.include.d/
+      - /var/lib/sss/pubconf/krb5.include.d
     kerberos_client__defaults:
       default_realm: '{{ freeipa_client__realm }}'
       dns_lookup_realm: 'false'
@@ -76,8 +76,23 @@
       }
     }) }}"
 
-
-
+- name: Update host informations in FreeIPA server
+  ipa_host:
+    description:          '{{ freeipa_client__ipa_description|d(omit) }}'
+    fqdn:                 '{{ freeipa_client__ipa_fqdn }}'
+    ip_address:           '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
+    mac_address:          '{{ _freeipa_client__mac_addresses|d([]) }}'
+    ns_hardware_platform: '{{ freeipa_client__ipa_ns_hardware_platform|d(omit) }}'
+    ns_host_location:     '{{ freeipa_client__ipa_ns_host_location|d(omit) }}'
+    ns_os_version:        '{{ freeipa_client__ipa_ns_os_version }}'
+    ipa_host:             '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass:             '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user:             '{{ freeipa_client__ipa_enroll_user }}'
+    state:                present
+  register: _freeipa_client__manual_host_register
+  failed_when: "_freeipa_client__manual_host_register.msg is defined and
+        _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Create hostgroups in FreeIPA server
   ipa_hostgroup:
