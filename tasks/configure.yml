@@ -65,9 +65,10 @@
       - sudo
       - pam
       - ssh
-    sssd__service_nss_settings:
-      homedir_substring: /home
-      memcache_timeout: '{{ 600 if freeipa_client__is_ipaserver else 300 }}'
+    sssd__services_settings:
+      nss:
+        homedir_substring: /home
+        memcache_timeout: '{{ 600 if freeipa_client__is_ipaserver else 300 }}'
     sssd__domains: ['{{ freeipa_client__domain }}']
     sssd__domains_settings: "{{ {}|combine({
       freeipa_client__domain: {
