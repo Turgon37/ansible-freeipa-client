@@ -12,6 +12,9 @@ freeipa_client__interface_name_exclusions:
   - docker*
   - br*
 
+# Set to true if this host is an IPA server
+freeipa_client__is_ipaserver: false
+
 ## FreeIPA Host informations
 freeipa_client__ipa_fqdn: '{{ inventory_hostname }}'
 #freeipa_client__ipa_dns_ip: '{{ ansible_default_ipv4 }}'

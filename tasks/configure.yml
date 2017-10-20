@@ -45,6 +45,11 @@
         combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )|
         combine( {(freeipa_client__realm|lower): freeipa_client__realm} if (freeipa_client__realm|lower) != freeipa_client__domain else {} )
      }}"
+    kerberos_client__dbmodules: "{{ {}|combine({
+      freeipa_client__realm: ( {}|
+        combine({'db_library': 'ipadb.so'} if freeipa_client__is_ipaserver else {})
+      )
+    }) }}"
 
 
 
