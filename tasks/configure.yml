@@ -34,13 +34,16 @@
         'kdc': freeipa_client__server,
         'master_kdc': freeipa_client__server,
         'admin_server': freeipa_client__server,
+        'kpasswd_server': freeipa_client__server,
         'default_domain': freeipa_client__domain,
-        'pkinit_anchors': 'FILE:'~freeipa_client__ca_path
+        'pkinit_anchors': 'FILE:'~freeipa_client__ca_path,
+        'pkinit_pool': 'FILE:'~freeipa_client__ca_path
       }
     }) }}"
     kerberos_client__domains: "{{
       {freeipa_client__domain: freeipa_client__realm}|
-        combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )
+        combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )|
+        combine( {(freeipa_client__realm|lower): freeipa_client__realm} if (freeipa_client__realm|lower) != freeipa_client__domain else {} )
      }}"
 
 
