@@ -9,8 +9,9 @@ freeipa_client__packages_names:
 freeipa_client__interface_name_exclusions:
   - lo
   - veth.*
-  - docker*
-  - br*
+  - docker.*
+  - br.*
+  - tun.*
 
 # Set to true if this host is an IPA server
 freeipa_client__is_ipaserver: false
