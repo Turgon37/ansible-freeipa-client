@@ -78,7 +78,7 @@
         'auth_provider': 'ipa',
         'access_provider': 'ipa',
         'chpass_provider': 'ipa',
-        'ipa_domain': freeipa_client__domain,
+        'ipa_domain': (freeipa_client__realm|lower),
         'ldap_tls_cacert': freeipa_client__ca_path,
         'ipa_hostname': ansible_fqdn,
         'ipa_server': ['_srv_', freeipa_client__server]|join(', '),
