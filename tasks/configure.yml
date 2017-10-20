@@ -69,9 +69,9 @@
       nss:
         homedir_substring: /home
         memcache_timeout: '{{ 600 if freeipa_client__is_ipaserver else 300 }}'
-    sssd__domains: ['{{ freeipa_client__domain }}']
+    sssd__domains: ['{{ freeipa_client__realm|lower }}']
     sssd__domains_settings: "{{ {}|combine({
-      freeipa_client__domain: {
+      (freeipa_client__realm|lower): {
         'cache_credentials': 'True',
         'krb5_store_password_if_offline': 'True',
         'id_provider': 'ipa',
