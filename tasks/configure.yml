@@ -17,7 +17,7 @@
     kerberos_client__keytab_deploy_remote_host: '{{ freeipa_client__ipa_enroll_host }}'
     kerberos_client__keytab_principal: '{{ freeipa_client__keytab_principal }}'
     kerberos_client__keytab_deploy_tmp_file: '{{ freeipa_client__krb_keytab_tmp_file }}'
-    kerberos_client__keytab_deploy_remote_genkey_command: "echo {{ freeipa_client__ipa_enroll_pass }} | kinit {{ freeipa_client__ipa_enroll_user }}; ipa-getkeytab --principal {{ freeipa_client__keytab_principal|replace('@'~freeipa_client__realm, '') }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}; kdestroy"
+    kerberos_client__keytab_deploy_remote_genkey_command: "echo {{ freeipa_client__ipa_enroll_pass }} | kinit {{ freeipa_client__ipa_enroll_user }} && ipa-getkeytab --principal {{ freeipa_client__keytab_principal|replace('@'~freeipa_client__realm, '') }} --keytab {{ freeipa_client__krb_keytab_tmp_file }}; ret=$?; kdestroy; exit $?"
     kerberos_client__include_dirs:
       - /var/lib/sss/pubconf/krb5.include.d
     kerberos_client__defaults:
