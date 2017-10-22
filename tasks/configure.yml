@@ -81,8 +81,8 @@
         'ipa_domain': (freeipa_client__realm|lower),
         'ldap_tls_cacert': freeipa_client__ca_path,
         'ipa_hostname': ansible_fqdn,
-        'ipa_server': ['_srv_', freeipa_client__server]|join(', '),
-        'ipa_server_mode': 'true' if freeipa_client__is_ipaserver else 'false',
+        'ipa_server': [freeipa_client__server]|union(['_srv_'] if not freeipa_client__is_ipaserver else [])|join(', '),
+        'ipa_server_mode': 'True' if freeipa_client__is_ipaserver else 'False',
         'dns_discovery_domain': freeipa_client__domain,
       }
     }) }}"
