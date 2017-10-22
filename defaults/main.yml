@@ -9,6 +9,7 @@ freeipa_client__packages_names:
 freeipa_client__interface_name_exclusions:
   - lo
   - veth.*
+  - vnet.*
   - docker.*
   - br.*
   - tun.*

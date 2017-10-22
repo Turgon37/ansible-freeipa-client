@@ -16,6 +16,7 @@
                                           [ hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress'] ]
                                         )|unique }}"
   with_items: '{{ ansible_interfaces }}'
-  when: not item|match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") and
+  when: (not item|match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") ) and
         'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname] and
-        'macaddress' in hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]
+        'macaddress' in hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))] and
+        hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress']|match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')

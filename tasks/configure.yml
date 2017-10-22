@@ -21,12 +21,12 @@
     kerberos_client__include_dirs:
       - /var/lib/sss/pubconf/krb5.include.d
     kerberos_client__defaults:
-      default_realm: '{{ freeipa_client__realm }}'
-      dns_lookup_realm: 'false'
-      dns_lookup_kdc: 'false'
-      rdns: 'false'
-      ticket_lifetime: 24h
-      forwardable: 'true'
+      default_realm:        '{{ freeipa_client__realm }}'
+      dns_lookup_realm:     'false'
+      dns_lookup_kdc:       'false'
+      rdns:                 'false'
+      ticket_lifetime:      24h
+      forwardable:          'true'
       udp_preference_limit: 0
     kerberos_client__realms: "{{ {}|combine({
       freeipa_client__realm: {
