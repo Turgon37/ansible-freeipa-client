@@ -60,10 +60,10 @@
   include_role:
     name: sssd
   vars:
-    sssd__services:
+    sssd__services: "{{ sssd__services_base|union(['ifp'] if freeipa_client__is_ipaserver else []) }}"
+    sssd__services_base:
       - sudo
       - nss
-      - ifp
       - pam
       - ssh
     sssd__services_settings:
