@@ -41,9 +41,19 @@
       }
     }) }}"
     kerberos_client__domains: "{{
-      {freeipa_client__domain: freeipa_client__realm}|
-        combine( {ansible_domain: freeipa_client__realm} if ansible_domain != freeipa_client__domain else {} )|
-        combine( {(freeipa_client__realm|lower): freeipa_client__realm} if (freeipa_client__realm|lower) != freeipa_client__domain else {} )
+        {
+          freeipa_client__domain: freeipa_client__realm,
+          '.'~freeipa_client__domain: freeipa_client__realm,
+          ansible_fqdn: freeipa_client__realm
+        }|
+        combine( {} if ansible_domain == freeipa_client__domain else {
+            ansible_domain: freeipa_client__realm,
+            '.'~ansible_domain: freeipa_client__realm
+          })|
+        combine( {} if (freeipa_client__realm|lower) == freeipa_client__domain else {
+            (freeipa_client__realm|lower): freeipa_client__realm,
+            '.'~(freeipa_client__realm|lower): freeipa_client__realm
+        })
      }}"
     kerberos_client__dbmodules: "{{ {}|combine({
       freeipa_client__realm: ( {}|
