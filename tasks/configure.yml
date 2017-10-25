@@ -127,6 +127,7 @@
     ipa_user:    '{{ freeipa_client__ipa_enroll_user }}'
     state:       "{{ item.state|d('present') }}"
   with_items: '{{ freeipa_client__ipa_hostgroups_rules }}'
+  when: freeipa_client__ipa_hostgroups_update
   register: _freeipa_client__hostgroups
   failed_when: "_freeipa_client__hostgroups.msg is defined and
         _freeipa_client__hostgroups.msg != 'response host_mod: no modifications to be performed'"
@@ -142,7 +143,8 @@
     ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
     state:    "{{ item.state|d('present') }}"
   with_items: '{{ _freeipa_client__hostgroups.results }}'
-  when: _freeipa_client__hostgroups|success and
+  when: freeipa_client__ipa_hostgroups_update and
+          _freeipa_client__hostgroups|success and
           item.hostgroup.cn|length == 1 and
           freeipa_client__ipa_fqdn not in item.hostgroup.member_host|d([])
   register: _freeipa_client__hostgroups_member

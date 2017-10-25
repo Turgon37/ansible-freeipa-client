@@ -28,6 +28,7 @@ freeipa_client__ipa_ns_os_version: '{{ ansible_distribution }} {{ ansible_distri
 
 ## FreeIPA hostgroup informations
 freeipa_client__ipa_hostgroups_rules: []
+freeipa_client__ipa_hostgroups_update: False
 
 ## FreeIPA Client configurations
 # Main configuration directory of ipa client
