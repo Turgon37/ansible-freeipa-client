@@ -20,3 +20,12 @@
         'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname] and
         'macaddress' in hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))] and
         hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress']|match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
+
+- name: Generate SSHFP entries from SSH public keys
+  set_fact:
+    _freeipa_client__sshfp_keys: "{{ _freeipa_client__sshfp_keys|d([])|union([
+        (item.value~' '~hostvars[inventory_hostname][item.key])|ssh_key_string_to_sshfp('SHA-1'),
+        (item.value~' '~hostvars[inventory_hostname][item.key])|ssh_key_string_to_sshfp('SHA-256')
+      ]) }}"
+  with_dict: '{{ freeipa_client__ssh_keys_type_mapping }}'
+  when: hostvars[inventory_hostname][item.key] is defined
