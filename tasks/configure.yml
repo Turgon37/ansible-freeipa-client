@@ -120,10 +120,10 @@
 - name: Updare SSHFP DNS records for host
   shell: >
     echo '{{ freeipa_client__ipa_enroll_pass }}' | kinit '{{ freeipa_client__ipa_enroll_user }}' &&
-    ipa dnsrecord_mod '{{ ansible_domain }}' '{{ ansible_hostname }}' --sshfp-rec='{{ item["algorythm"] }} {{ item["digest_type"] }} {{ item["fingerprint"] }}';
+    ipa dnsrecord_mod '{{ freeipa_client__ipa_sshfp_dns_zone_name }}' '{{ freeipa_client__ipa_sshfp_dns_entry_name }}' 
+    {% for k in _freeipa_client__sshfp_keys %} --sshfp-rec='{{ item["algorythm"] }} {{ item["digest_type"] }} {{ item["fingerprint"] }}'{% endfor %};
     kdestroy;
     exit $?
-  with_items: '{{ _freeipa_client__sshfp_keys }}'
   when: freeipa_client__ipa_sshfp_update
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
   ignore_errors: true

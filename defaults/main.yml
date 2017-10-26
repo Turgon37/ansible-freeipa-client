@@ -32,6 +32,12 @@ freeipa_client__ipa_hostgroups_update: False
 
 ## FreeIPA SSHFP entries
 freeipa_client__ipa_sshfp_update: False
+# Put here your template to generate the DNS zone name
+# Default to the domain name of the host returned by Ansible
+freeipa_client__ipa_sshfp_dns_zone_name: '{{ ansible_domain }}'
+# Put here your template to generate the DNS entry name
+# Default to the hostname (without domain part) of the host
+freeipa_client__ipa_sshfp_dns_entry_name: '{{ ansible_hostname }}'
 freeipa_client__ssh_keys_type_mapping:
   ansible_ssh_host_key_ecdsa_public: ecdsa-sha2-nistp256
   ansible_ssh_host_key_ed25519_public: ssh-ed25519
