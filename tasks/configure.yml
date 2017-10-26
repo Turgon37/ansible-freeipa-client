@@ -124,6 +124,7 @@
     kdestroy;
     exit $?
   with_items: '{{ _freeipa_client__sshfp_keys }}'
+  when: freeipa_client__ipa_sshfp_update
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
   ignore_errors: true
 

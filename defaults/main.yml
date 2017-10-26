@@ -31,6 +31,7 @@ freeipa_client__ipa_hostgroups_rules: []
 freeipa_client__ipa_hostgroups_update: False
 
 ## FreeIPA SSHFP entries
+freeipa_client__ipa_sshfp_update: False
 freeipa_client__ssh_keys_type_mapping:
   ansible_ssh_host_key_ecdsa_public: ecdsa-sha2-nistp256
   ansible_ssh_host_key_ed25519_public: ssh-ed25519

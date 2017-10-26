@@ -28,4 +28,4 @@
         (item.value~' '~hostvars[inventory_hostname][item.key])|ssh_key_string_to_sshfp('SHA-256')
       ]) }}"
   with_dict: '{{ freeipa_client__ssh_keys_type_mapping }}'
-  when: hostvars[inventory_hostname][item.key] is defined
+  when: freeipa_client__ipa_sshfp_update and hostvars[inventory_hostname][item.key] is defined
