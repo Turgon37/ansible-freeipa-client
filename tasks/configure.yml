@@ -117,7 +117,18 @@
   ignore_errors: true
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
-- name: Updare SSHFP DNS records for host
+- name: Ensure DNS zone exists
+  ipa_dnsrecord:
+    zone_name: '{{ freeipa_client__ipa_sshfp_dns_zone_name }}'
+    ipa_host:  '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass:  '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user:  '{{ freeipa_client__ipa_enroll_user }}'
+    state:     present
+  when: freeipa_client__ipa_sshfp_update
+  ignore_errors: true
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
+
+- name: Update SSHFP DNS records for host
   shell: >
     echo '{{ freeipa_client__ipa_enroll_pass }}' | kinit '{{ freeipa_client__ipa_enroll_user }}' &&
     ipa dnsrecord_mod '{{ freeipa_client__ipa_sshfp_dns_zone_name }}' '{{ freeipa_client__ipa_sshfp_dns_entry_name }}' 
@@ -125,8 +136,8 @@
     kdestroy;
     exit $?
   when: freeipa_client__ipa_sshfp_update
-  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
   ignore_errors: true
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Create hostgroups in FreeIPA server
   ipa_hostgroup:
