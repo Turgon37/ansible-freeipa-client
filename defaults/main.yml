@@ -30,6 +30,10 @@ freeipa_client__ipa_ns_os_version: '{{ ansible_distribution }} {{ ansible_distri
 freeipa_client__ipa_hostgroups_rules: []
 freeipa_client__ipa_hostgroups_update: False
 
+## FreeIPA DNS A AAAA entries
+freeipa_client__ipa_dns_update: False
+freeipa_client__ipa_dns_records: []
+
 ## FreeIPA SSHFP entries
 freeipa_client__ipa_sshfp_update: False
 # Put here your template to generate the DNS zone name

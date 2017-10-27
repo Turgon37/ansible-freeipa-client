@@ -124,7 +124,20 @@
     ipa_pass:  '{{ freeipa_client__ipa_enroll_pass }}'
     ipa_user:  '{{ freeipa_client__ipa_enroll_user }}'
     state:     present
-  when: freeipa_client__ipa_sshfp_update
+  when: freeipa_client__ipa_sshfp_update or freeipa_client__ipa_dns_update
+  ignore_errors: true
+  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
+
+- name: Ensure DNS entry exists
+  ipa_dnsrecord:
+    record_name:  '{{ item.name }}'
+    record_type:  "{{ item.type|d('A') }}"
+    record_value: '{{ item.data }}'
+    ipa_host:     '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass:     '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user:     '{{ freeipa_client__ipa_enroll_user }}'
+  with_items: '{{ freeipa_client__ipa_dns_records }}'
+  when: freeipa_client__ipa_dns_update
   ignore_errors: true
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
