@@ -12,6 +12,14 @@
       skip: true
   tags: ['always']
 
+- debug: var=item
+  with_items:
+    - '{{ freeipa_client__ipa_sshfp_dns_zone_name }}'
+    - '{{ inventory_hostname }}'
+    - "{{ inventory_hostname.split('.')[1:]|join('.') }}"
+    - '{{ freeipa_client__ipa_sshfp_dns_entry_name }}'
+    - '{{ ansible_hostname }}'
+
 - import_tasks: init.yml
   tags: ['always']
 
