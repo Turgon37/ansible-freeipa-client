@@ -19,6 +19,7 @@
     - "{{ inventory_hostname.split('.')[1:]|join('.') }}"
     - '{{ freeipa_client__ipa_sshfp_dns_entry_name }}'
     - '{{ ansible_hostname }}'
+  tags: ['always']
 
 - import_tasks: init.yml
   tags: ['always']
