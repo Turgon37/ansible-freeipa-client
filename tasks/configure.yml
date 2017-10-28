@@ -151,7 +151,9 @@
     kdestroy;
     exit $?
   when: freeipa_client__ipa_sshfp_update
+  register: _freeipa_client__sshfp_change
   ignore_errors: true
+  changed_when: not _freeipa_client__sshfp_change.stderr|search('response host_mod: no modifications to be performed')
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Create hostgroups in FreeIPA server
