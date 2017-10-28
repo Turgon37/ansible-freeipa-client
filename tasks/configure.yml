@@ -155,7 +155,7 @@
   when: freeipa_client__ipa_sshfp_update
   register: _freeipa_client__sshfp_update
   ignore_errors: true
-  changed_when: "_freeipa_client__sshfp_update|search('_UPDATE_') or (not _freeipa_client__sshfp_update.stderr|search('response host_mod: no modifications to be performed'))"
+  changed_when: "_freeipa_client__sshfp_update.stdout|search('_UPDATE_') or (not _freeipa_client__sshfp_update.stderr|search('response host_mod: no modifications to be performed'))"
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Create hostgroups in FreeIPA server
