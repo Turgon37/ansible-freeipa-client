@@ -145,15 +145,17 @@
 
 - name: Update SSHFP DNS records for host
   shell: >
-    echo '{{ freeipa_client__ipa_enroll_pass }}' | kinit '{{ freeipa_client__ipa_enroll_user }}' &&
-    ipa dnsrecord_mod '{{ freeipa_client__ipa_dns_zone_name }}' '{{ freeipa_client__ipa_dns_entry_name }}'
-    {% for item in _freeipa_client__sshfp_keys %} --sshfp-rec='{{ item["algorythm"] }} {{ item["digest_type"] }} {{ item["fingerprint"] }}'{% endfor %};
+    ( echo '{{ freeipa_client__ipa_enroll_pass }}' | kinit '{{ freeipa_client__ipa_enroll_user }}' ) &&
+    ( if [[ $(ipa dnsrecord_show '{{ freeipa_client__ipa_dns_zone_name }}' '{{ freeipa_client__ipa_dns_entry_name }}' --raw | grep --count --extended-regexp '({{ _freeipa_client__sshfp_keys|map(attribute="fingerprint")|list|join("|") }})') -ne {{ _freeipa_client__sshfp_keys|length }} ]]; then
+    ipa dnsrecord_mod '{{ freeipa_client__ipa_dns_zone_name }}' '{{ freeipa_client__ipa_dns_entry_name }}' {% for item in _freeipa_client__sshfp_keys %} --sshfp-rec='{{ item["algorythm"] }} {{ item["digest_type"] }} {{ item["fingerprint"] }}'{% endfor %} && echo '_UPDATE_';
+    result=$?
+    );
     kdestroy;
-    exit $?
+    exit $result
   when: freeipa_client__ipa_sshfp_update
-  register: _freeipa_client__sshfp_change
+  register: _freeipa_client__sshfp_update
   ignore_errors: true
-  changed_when: not _freeipa_client__sshfp_change.stderr|search('response host_mod: no modifications to be performed')
+  changed_when: _freeipa_client__sshfp_update|search('_UPDATE_') or (not _freeipa_client__sshfp_update.stderr|search('response host_mod: no modifications to be performed'))
   delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
 
 - name: Create hostgroups in FreeIPA server
