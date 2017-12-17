@@ -1,0 +1,34 @@
+---
+
+### MAKE HOMEDIR FEATURE
+
+- name: Check if the mkhomedir feature is enabled for Debian machines
+  command: 'grep --recursive mkhomedir /etc/pam.d/'
+  when: ansible_os_family == 'Debian'
+  register: _freeipa_client__mkhomedir
+  changed_when: False
+  failed_when: _freeipa_client__mkhomedir.rc == 2
+  check_mode: no
+
+- name: Add pam_mkhomedir for Debian machines
+  copy:
+    src: pam_mkhomedir
+    dest: '/usr/share/pam-configs/{{ freeipa_client__enable_make_homedir_profile_name }}'
+  when: ansible_os_family == 'Debian' and
+          freeipa_client__enable_make_homedir and
+          _freeipa_client__mkhomedir.rc != 0
+  notify: ['pam-auth-update']
+
+- name: Disable pam_mkhomedir for Debian machines
+  command: 'pam-auth-update --remove {{ freeipa_client__enable_make_homedir_profile_name }}'
+  when: ansible_os_family == 'Debian' and
+          not freeipa_client__enable_make_homedir and
+          _freeipa_client__mkhomedir.rc == 0
+
+- name: Remove pam_mkhomedir for Debian machines
+  file:
+    path: '/usr/share/pam-configs/{{ freeipa_client__enable_make_homedir_profile_name }}'
+    state: absent
+  when: ansible_os_family == 'Debian' and
+          not freeipa_client__enable_make_homedir and
+          _freeipa_client__mkhomedir.rc == 0

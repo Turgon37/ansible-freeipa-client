@@ -1,0 +1,23 @@
+---
+
+### MAKE HOMEDIR FEATURE
+
+- name: Check if the mkhomedir feature is enabled for RedHat machines
+  command: 'grep USEMKHOMEDIR=yes /etc/sysconfig/authconfig'
+  when: ansible_os_family == 'RedHat'
+  register: _freeipa_client__mkhomedir
+  changed_when: False
+  failed_when: _freeipa_client__mkhomedir.rc == 2
+  check_mode: no
+
+- name: Enable mkhomedir feature for RedHat machines
+  command: 'authconfig --enablemkhomedir --update'
+  when: ansible_os_family == 'RedHat' and
+          freeipa_client__enable_make_homedir and
+          _freeipa_client__mkhomedir.rc != 0
+
+- name: Disable mkhomedir feature for RedHat machines
+  command: 'authconfig --disablemkhomedir --update'
+  when: ansible_os_family == 'RedHat' and
+          not freeipa_client__enable_make_homedir and
+          _freeipa_client__mkhomedir.rc == 0
