@@ -37,7 +37,6 @@
   register: _freeipa_client__manual_host_register
   failed_when: "_freeipa_client__manual_host_register.msg is defined and
         _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
-  ignore_errors: true
   delegate_to: '{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}'
 
 # Not before ansible 2.5
