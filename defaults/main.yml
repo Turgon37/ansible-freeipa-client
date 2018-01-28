@@ -90,6 +90,3 @@ freeipa_client__enable_make_homedir_profile_name: mkhomedir
 freeipa_client__keytab_principal: 'host/{{ ansible_fqdn }}@{{ freeipa_client__realm }}'
 # Temporary file in which to store Keytab during exchanges
 freeipa_client__krb_keytab_tmp_file: '/tmp/{{ inventory_hostname }}.keytab'
-
-# Working values
-_freeipa_client__mac_addresses: []
