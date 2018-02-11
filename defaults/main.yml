@@ -5,6 +5,9 @@
 freeipa_client__packages_names:
   - ipa-client
 
+# If all daemon related to freeipa must be enabled
+freeipa_client__service_enabled: True
+
 ## FreeIPA informations
 freeipa_client__interface_name_exclusions:
   - lo

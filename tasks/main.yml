@@ -20,6 +20,3 @@
 
 - import_tasks: configure.yml
   tags: ['freeipa-client', 'freeipa-client-configure']
-
-- import_tasks: service.yml
-  tags: ['freeipa-client', 'freeipa-client-service']
