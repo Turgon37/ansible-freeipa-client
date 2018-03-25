@@ -37,7 +37,7 @@
   register: _freeipa_client__manual_host_register
   failed_when: "_freeipa_client__manual_host_register.msg is defined and
         _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
-  delegate_to: '{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}'
+  delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
 
 # Not before ansible 2.5
 #- name: Ensure DNS zone exists
@@ -64,7 +64,7 @@
   with_items: '{{ freeipa_client__ipa_dns_records }}'
   when: freeipa_client__ipa_dns_update
   ignore_errors: true
-  delegate_to: "{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}"
+  delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
 
 - name: Update SSHFP DNS records for host
   shell: >
@@ -88,7 +88,7 @@
                   _freeipa_client__sshfp_update.stderr|search('ERROR') and
                   not _freeipa_client__sshfp_update.stderr|search('no modifications to be performed')
                 )
-  delegate_to: '{{ freeipa_client__ipa_delegate_to if freeipa_client__ipa_delegate_to is defined else omit }}'
+  delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
 
 #- name: Create hostgroups in FreeIPA server
   #ipa_hostgroup:
