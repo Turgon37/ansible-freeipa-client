@@ -7,6 +7,7 @@
     path: /etc/ipa/default.conf
   register: _freeipa_client_ipaconf
   check_mode: no
+  tags: ['freeipa-client', 'freeipa-client-configure']
 
 - name: Enroll host in FreeIPA master
   command: >
@@ -24,3 +25,4 @@
     {{ '--no-ntp' if not freeipa_client__enable_ntp else ''}}
     {{ '--force-join' if freeipa_client__force_join else ''}}
   when: not _freeipa_client_ipaconf.stat.exists
+  tags: ['freeipa-client', 'freeipa-client-configure']

@@ -12,6 +12,7 @@
   failed_when: "_freeipa_client__manual_host_register.msg is defined and
         _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
   delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
+  tags: ['freeipa-client', 'freeipa-client-configure']
 
 ## IPA client configuration
 
@@ -22,6 +23,7 @@
     group: root
     mode:  0755
     state: directory
+  tags: ['freeipa-client', 'freeipa-client-configure']
 
 - name: Download ipa certificate to host
   get_url:
@@ -29,3 +31,4 @@
     dest: '{{ freeipa_client__ca_path }}'
     mode: 0644
     checksum: '{{ freeipa_client__ca_checksum|d(omit) }}'
+  tags: ['freeipa-client', 'freeipa-client-configure']
