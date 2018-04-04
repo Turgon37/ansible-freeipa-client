@@ -1,9 +1,7 @@
 ---
 
 freeipa_client__packages_names:
-  - krb5-user
   - ldap-utils
   - libnss3-tools
   - openssl
   - python-pip
-  - sudo
