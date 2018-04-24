@@ -12,11 +12,11 @@
 - name: Enroll host in FreeIPA master
   command: >
     {{ freeipa_client__install_command }}
-    {{'--hostname=' + freeipa_client__hostname if freeipa_client__hostname is defined else ''}}
+    {% if freeipa_client__hostname is defined %} --hostname={{ freeipa_client__hostname }}{% endif %}
     --server={{ freeipa_client__server }}
     --domain={{ freeipa_client__domain }}
-    --principal={{ freeipa_client__enroll_user }}
-    --password={{ freeipa_client__enroll_pass }}
+    --principal={{ freeipa_client__ipa_enroll_user }}
+    --password={{ freeipa_client__ipa_enroll_pass }}
     --ssh-trust-dns
     {% if freeipa_client__enable_make_homedir %}--mkhomedir{% endif %}
     {% if freeipa_client__enable_dns_updates %}--enable-dns-updates{% endif %}
@@ -25,4 +25,11 @@
     {{ '--no-ntp' if not freeipa_client__enable_ntp else ''}}
     {{ '--force-join' if freeipa_client__force_join else ''}}
   when: not _freeipa_client_ipaconf.stat.exists
+  ignore_errors: True
+  register: _freeipa_client__ipa_install
+  tags: ['freeipa-client', 'freeipa-client-configure']
+
+- fail:
+    msg: "{{ _freeipa_client__ipa_install.stdout_lines|union(_freeipa_client__ipa_install.stderr_lines)|join('') }}"
+  when: _freeipa_client__ipa_install is failed
   tags: ['freeipa-client', 'freeipa-client-configure']
