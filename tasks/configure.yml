@@ -27,12 +27,12 @@
     kerberos_client__include_dirs:
       - /var/lib/sss/pubconf/krb5.include.d
     kerberos_client__defaults:
-      default_realm:        '{{ freeipa_client__realm }}'
-      dns_lookup_realm:     'false'
-      dns_lookup_kdc:       'false'
-      rdns:                 'false'
-      ticket_lifetime:      24h
-      forwardable:          'true'
+      default_realm: '{{ freeipa_client__realm }}'
+      dns_lookup_realm: 'false'
+      dns_lookup_kdc: 'true'
+      rdns: 'false'
+      ticket_lifetime: 24h
+      forwardable: 'true'
       udp_preference_limit: 0
     kerberos_client__realms: "{{ {
       freeipa_client__realm: {
@@ -75,12 +75,7 @@
     name: sssd
   vars:
     sssd__service_enabled: '{{ freeipa_client__service_enabled }}'
-    sssd__services: "{{ sssd__services_base|union(['ifp'] if freeipa_client__is_ipaserver else []) }}"
-    sssd__services_base:
-      - sudo
-      - nss
-      - pam
-      - ssh
+    sssd__services: "{{ ['sudo', 'nss', 'pam', 'ssh']|union(['ifp'] if freeipa_client__is_ipaserver else []) }}"
     sssd__services_settings:
       nss:
         homedir_substring: /home
@@ -99,7 +94,7 @@
         'ipa_hostname': ansible_fqdn,
         'ipa_server': (['_srv_'] if not freeipa_client__is_ipaserver else [])|union([freeipa_client__server])|join(', '),
         'ipa_server_mode': 'True' if freeipa_client__is_ipaserver else 'False',
-        'dns_discovery_domain': freeipa_client__domain,
+        'dns_discovery_domain': (freeipa_client__realm|lower),
       }
     }) }}"
 
