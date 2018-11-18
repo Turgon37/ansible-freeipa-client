@@ -83,8 +83,8 @@
     sssd__domains: ['{{ freeipa_client__realm|lower }}']
     sssd__domains_settings: "{{ {}|combine({
       (freeipa_client__realm|lower): {
-        'cache_credentials': 'True',
-        'krb5_store_password_if_offline': 'True',
+        'cache_credentials': true,
+        'krb5_store_password_if_offline': true,
         'id_provider': 'ipa',
         'auth_provider': 'ipa',
         'access_provider': 'ipa',
@@ -92,8 +92,9 @@
         'ipa_domain': (freeipa_client__realm|lower),
         'ldap_tls_cacert': freeipa_client__ca_path,
         'ipa_hostname': ansible_fqdn,
-        'ipa_server': (['_srv_'] if not freeipa_client__is_ipaserver else [])|union([freeipa_client__server])|join(', '),
-        'ipa_server_mode': 'True' if freeipa_client__is_ipaserver else 'False',
+        'ipa_server': (['_srv_'] if not freeipa_client__is_ipaserver else [])|union([freeipa_client__server])|join(','),
+        'ipa_backup_server': freeipa_client__backup_server|join(','),
+        'ipa_server_mode': true if freeipa_client__is_ipaserver else false,
         'dns_discovery_domain': (freeipa_client__realm|lower),
       }
     }) }}"

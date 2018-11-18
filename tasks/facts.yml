@@ -1,0 +1,17 @@
+---
+
+- name: Create custom fact directory
+  file:
+    path: "{{ facts__dir|d('/etc/ansible/facts.d') }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  tags: ['freeipa-client', 'freeipa-client-facts']
+
+- name: Insert custom fact file
+  copy:
+    src: files/freeipa_client.facts.py
+    dest: "{{ facts__dir|d('/etc/ansible/facts.d') }}/freeipa_client.fact"
+    mode: 0755
+  tags: ['freeipa-client', 'freeipa-client-facts']

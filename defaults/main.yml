@@ -1,13 +1,25 @@
 ---
 # defaults file for freeipa-client
 
+# Enable facts deploiement
+freeipa_client__facts: true
+
+
+### INSTALLATION CONFIGURATION
+# ---------------------------------------
 # List of packages to install for giving the host the capability to query an ipa server
 freeipa_client__packages_names:
   - ipa-client
 
-# If all daemon related to freeipa must be enabled
-freeipa_client__service_enabled: True
 
+### SERVICE CONFIGURATION
+# ---------------------------------------
+# If all daemon related to freeipa must be enabled
+freeipa_client__service_enabled: true
+
+
+### FREEIPA CONFIGURATION
+# ---------------------------------------
 ## FreeIPA informations
 freeipa_client__interface_name_exclusions:
   - lo
@@ -31,10 +43,10 @@ freeipa_client__ipa_ns_os_version: '{{ ansible_distribution }} {{ ansible_distri
 
 ## FreeIPA hostgroup informations
 freeipa_client__ipa_hostgroups_rules: []
-freeipa_client__ipa_hostgroups_update: False
+freeipa_client__ipa_hostgroups_update: false
 
 ## FreeIPA DNS A AAAA entries
-freeipa_client__ipa_dns_update: False
+freeipa_client__ipa_dns_update: false
 # Put here your template to generate the DNS zone name
 # Default to the domain name of the host returned by Ansible
 freeipa_client__ipa_dns_zone_name: '{{ ansible_domain }}'
@@ -44,7 +56,7 @@ freeipa_client__ipa_dns_entry_name: '{{ ansible_hostname }}'
 freeipa_client__ipa_dns_records: []
 
 ## FreeIPA SSHFP entries
-freeipa_client__ipa_sshfp_update: False
+freeipa_client__ipa_sshfp_update: false
 freeipa_client__ssh_keys_type_mapping:
   ansible_ssh_host_key_ecdsa_public: ecdsa-sha2-nistp256
   ansible_ssh_host_key_ed25519_public: ssh-ed25519
@@ -67,13 +79,13 @@ freeipa_client__realm: '{{ freeipa_client__domain|upper }}'
 # The path to the ipa client binary
 freeipa_client__install_command: '/sbin/ipa-client-install'
 # Enable NTP configuration on client
-freeipa_client__enable_ntp: True
+freeipa_client__enable_ntp: true
 # This option tells SSSD to automatically update DNS with the IP address of this client
-freeipa_client__enable_dns_updates: True
+freeipa_client__enable_dns_updates: true
 # If set to True the enrollment will overwrite the hostname entry if already exist
-freeipa_client__force_join: False
+freeipa_client__force_join: false
 # Associate all routable ip addresses of this host into the DNS
-freeipa_client__all_ip_addresses: True
+freeipa_client__all_ip_addresses: true
 
 ## FreeIPA authentification during enrollment
 #freeipa_client__ipa_delegate_to:
@@ -92,4 +104,4 @@ freeipa_client__enable_make_homedir_profile_name: mkhomedir
 # Kerberos principal format
 freeipa_client__keytab_principal: 'host/{{ ansible_fqdn }}@{{ freeipa_client__realm }}'
 # Temporary file in which to store Keytab during exchanges
-freeipa_client__krb_keytab_tmp_file: '/tmp/{{ inventory_hostname }}.keytab'
+freeipa_client__krb_keytab_tmp_file: '/tmp/host_{{ inventory_hostname }}.keytab'
