@@ -2,15 +2,15 @@
 
 - name: Register host to FreeIPA server
   ipa_host:
-    fqdn:                 '{{ freeipa_client__ipa_fqdn }}'
-    ip_address:           '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
-    ipa_host:             '{{ freeipa_client__ipa_enroll_host }}'
-    ipa_pass:             '{{ freeipa_client__ipa_enroll_pass }}'
-    ipa_user:             '{{ freeipa_client__ipa_enroll_user }}'
-    state:                present
+    fqdn: '{{ freeipa_client__ipa_fqdn }}'
+    ip_address: '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
+    ipa_host: '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass: '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
+    state: present
   register: _freeipa_client__manual_host_register
-  failed_when: "_freeipa_client__manual_host_register.msg is defined and
-        _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
+  failed_when: "_freeipa_client__manual_host_register.msg is defined
+    and _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
   delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
   tags: ['freeipa-client', 'freeipa-client-configure']
 
@@ -18,16 +18,16 @@
 
 - name: Ensure configuration directory exists
   file:
-    path:  '{{ freeipa_client__config_dir }}'
+    path: '{{ freeipa_client__configuration_directory }}'
     owner: root
     group: root
-    mode:  0755
+    mode: 0755
     state: directory
   tags: ['freeipa-client', 'freeipa-client-configure']
 
 - name: Download ipa certificate to host
   get_url:
-    url:  'http://{{ freeipa_client__ipa_enroll_host }}/ipa/config/ca.crt'
+    url: 'http://{{ freeipa_client__ipa_enroll_host }}/ipa/config/ca.crt'
     dest: '{{ freeipa_client__ca_path }}'
     mode: 0644
     checksum: '{{ freeipa_client__ca_checksum|d(omit) }}'

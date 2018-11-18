@@ -2,12 +2,12 @@
 
 - name: Retrieve all MAC addresses
   set_fact:
-    _freeipa_client__mac_addresses: "{{ (
-                                          _freeipa_client__mac_addresses|d([]) +
-                                          [ hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress'] ]
-                                        )|unique }}"
+    _freeipa_client__mac_addresses: "{{
+      _freeipa_client__mac_addresses|d([])
+      |union([ hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress'] ])
+      |unique }}"
   with_items: '{{ ansible_interfaces }}'
-  when: (not item|match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") ) and
+  when: (not item is match("("~(freeipa_client__interface_name_exclusions|join("|"))~")") ) and
         'ansible_'~(item|regex_replace('[-:]', '_')) in hostvars[inventory_hostname] and
         'macaddress' in hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))] and
         hostvars[inventory_hostname]['ansible_'~(item|regex_replace('[-:]', '_'))]['macaddress']|match('^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$')
@@ -23,20 +23,20 @@
 
 - name: Register host in FreeIPA server
   ipa_host:
-    description:          '{{ freeipa_client__ipa_description|d(omit) }}'
-    fqdn:                 '{{ freeipa_client__ipa_fqdn }}'
-    ip_address:           '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
-    mac_address:          '{{ _freeipa_client__mac_addresses|d([]) }}'
+    description: '{{ freeipa_client__ipa_description|d(omit) }}'
+    fqdn: '{{ freeipa_client__ipa_fqdn }}'
+    ip_address: '{{ freeipa_client__ipa_dns_ip|d(omit) }}'
+    mac_address: '{{ _freeipa_client__mac_addresses|d([]) }}'
     ns_hardware_platform: '{{ freeipa_client__ipa_ns_hardware_platform|d(omit) }}'
-    ns_host_location:     '{{ freeipa_client__ipa_ns_host_location|d(omit) }}'
-    ns_os_version:        '{{ freeipa_client__ipa_ns_os_version }}'
-    ipa_host:             '{{ freeipa_client__ipa_enroll_host }}'
-    ipa_pass:             '{{ freeipa_client__ipa_enroll_pass }}'
-    ipa_user:             '{{ freeipa_client__ipa_enroll_user }}'
-    state:                present
+    ns_host_location: '{{ freeipa_client__ipa_ns_host_location|d(omit) }}'
+    ns_os_version: '{{ freeipa_client__ipa_ns_os_version }}'
+    ipa_host: '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass: '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
+    state: present
   register: _freeipa_client__manual_host_register
-  failed_when: "_freeipa_client__manual_host_register.msg is defined and
-        _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
+  failed_when: "_freeipa_client__manual_host_register.msg is defined
+    and _freeipa_client__manual_host_register.msg != 'response host_mod: no modifications to be performed'"
   delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
 
 # Not before ansible 2.5
@@ -53,14 +53,14 @@
 
 - name: Ensure DNS entry exists
   ipa_dnsrecord:
-    zone_name:    '{{ freeipa_client__ipa_dns_zone_name }}'
-    record_name:  '{{ item.name }}'
-    record_type:  "{{ item.type|d('A') }}"
+    zone_name: '{{ freeipa_client__ipa_dns_zone_name }}'
+    record_name: {{ item.name }}'
+    record_type: "{{ item.type|d('A') }}"
     record_value: '{{ item.data }}'
-    ipa_host:     '{{ freeipa_client__ipa_enroll_host }}'
-    ipa_pass:     '{{ freeipa_client__ipa_enroll_pass }}'
-    ipa_user:     '{{ freeipa_client__ipa_enroll_user }}'
-    state:        present
+    ipa_host: '{{ freeipa_client__ipa_enroll_host }}'
+    ipa_pass: '{{ freeipa_client__ipa_enroll_pass }}'
+    ipa_user: '{{ freeipa_client__ipa_enroll_user }}'
+    state: present
   with_items: '{{ freeipa_client__ipa_dns_records }}'
   when: freeipa_client__ipa_dns_update
   ignore_errors: true
@@ -81,13 +81,13 @@
     exit $result
   when: freeipa_client__ipa_sshfp_update
   register: _freeipa_client__sshfp_update
-  ignore_errors: True
+  ignore_errors: true
   changed_when: "_freeipa_client__sshfp_update.stdout|search('_CHANGED_')"
-  failed_when: _freeipa_client__sshfp_update|failed
-                or (
-                  _freeipa_client__sshfp_update.stderr|search('ERROR') and
-                  not _freeipa_client__sshfp_update.stderr|search('no modifications to be performed')
-                )
+  failed_when: _freeipa_client__sshfp_update is failed
+    or (
+      _freeipa_client__sshfp_update.stderr is search('ERROR')
+      and not _freeipa_client__sshfp_update.stderr is search('no modifications to be performed')
+    )
   delegate_to: '{{ freeipa_client__ipa_delegate_to|d(omit) }}'
 
 #- name: Create hostgroups in FreeIPA server

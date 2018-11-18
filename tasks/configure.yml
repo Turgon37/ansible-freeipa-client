@@ -1,9 +1,11 @@
 ---
 
-- include_tasks: configure-manually.yml
+- name: Including manual configuration tasks
+  include_tasks: configure-manually.yml
   when: ansible_os_family in ['Debian']
 
-- include_tasks: configure-client.yml
+- name: Including client configuration tasks
+  include_tasks: configure-client.yml
   when: ansible_os_family in ['RedHat']
 
 
@@ -100,4 +102,5 @@
     }) }}"
 
 
-- import_tasks: configure-pam.yml
+- name: Importing PAM configuration tasks
+  import_tasks: configure-pam.yml

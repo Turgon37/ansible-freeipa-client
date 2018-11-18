@@ -2,11 +2,12 @@
 
 ### MAKE HOMEDIR FEATURE
 
-- include_tasks: 'configure-pam-{{ ansible_os_family }}.yml'
+- name: Including specific PAM configuration tasks
+  include_tasks: 'configure-pam-{{ ansible_os_family }}.yml'
 
-#- name: Create symbolic link for sasl2 lib because sssd does not found them
-  #file:
-    #src: "/usr/lib/arm-linux-gnueabihf/sasl2"
-    #dest: "/usr/lib/sasl2"
-    #state: link
-  #when: ansible_os_family == 'Debian' and ansible_machine|search("arm") and False
+# - name: Create symbolic link for sasl2 lib because sssd does not found them
+#   file:
+#     src: "/usr/lib/arm-linux-gnueabihf/sasl2"
+#     dest: "/usr/lib/sasl2"
+#     state: link
+#   when: ansible_os_family == 'Debian' and ansible_machine|search("arm")

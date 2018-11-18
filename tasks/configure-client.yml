@@ -6,7 +6,7 @@
   stat:
     path: /etc/ipa/default.conf
   register: _freeipa_client_ipaconf
-  check_mode: no
+  check_mode: false
   tags: ['freeipa-client', 'freeipa-client-configure']
 
 - name: Enroll host in FreeIPA master
@@ -25,11 +25,12 @@
     {{ '--no-ntp' if not freeipa_client__enable_ntp else ''}}
     {{ '--force-join' if freeipa_client__force_join else ''}}
   when: not _freeipa_client_ipaconf.stat.exists
-  ignore_errors: True
+  ignore_errors: true
   register: _freeipa_client__ipa_install
   tags: ['freeipa-client', 'freeipa-client-configure']
 
-- fail:
+- name: Fail if ipa-client did not work
+  fail:
     msg: "{{ _freeipa_client__ipa_install.stdout_lines|union(_freeipa_client__ipa_install.stderr_lines)|join('') }}"
   when: _freeipa_client__ipa_install is failed
   tags: ['freeipa-client', 'freeipa-client-configure']
