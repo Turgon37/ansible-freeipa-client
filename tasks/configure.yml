@@ -1,9 +1,11 @@
 ---
 
-- include_tasks: configure-manually.yml
+- name: Including manual configuration tasks
+  include_tasks: configure-manually.yml
   when: ansible_os_family in ['Debian']
 
-- include_tasks: configure-client.yml
+- name: Including client configuration tasks
+  include_tasks: configure-client.yml
   when: ansible_os_family in ['RedHat']
 
 
@@ -61,10 +63,14 @@
         })
      }}"
     kerberos_client__dbmodules: "{{ {
-      freeipa_client__realm: ( {}|
-        combine({'db_library': 'ipadb.so'} if freeipa_client__is_ipaserver else {})
+      freeipa_client__realm: (
+        {}
+        |combine(freeipa_client__is_ipaserver|ternary(freeipa_client__kerberos_dbmodules_server, {}))
       )
     } }}"
+    kerberos_client__plugins: "{{ {}
+      |combine(freeipa_client__is_ipaserver|ternary(freeipa_client__kerberos_plugins_server, {}))
+    }}"
 
 
 # SSSD
@@ -100,4 +106,5 @@
     }) }}"
 
 
-- import_tasks: configure-pam.yml
+- name: Importing PAM configuration tasks
+  import_tasks: configure-pam.yml

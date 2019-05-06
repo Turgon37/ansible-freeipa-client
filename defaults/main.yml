@@ -20,6 +20,27 @@ freeipa_client__service_enabled: true
 
 ### FREEIPA CONFIGURATION
 # ---------------------------------------
+# Set to true if this host is an IPA server
+freeipa_client__is_ipaserver: false
+
+# Main configuration directory of ipa client
+freeipa_client__configuration_directory: /etc/ipa
+
+# The path to certificate authority file
+freeipa_client__ca_path: '{{ freeipa_client__configuration_directory }}/ca.crt'
+# An optionnal checksum to check CA content validity
+# freeipa_client__ca_checksum:
+
+# The ipa server this host will communicate to
+# freeipa_client__server: ipa.demo1.freeipa.org
+
+# The domain of the FreeIPA server
+# freeipa_client__domain: freeipa.org
+
+# The freeipa realm, default to domain in uppercase
+freeipa_client__realm: '{{ freeipa_client__domain|upper }}'
+
+
 ## FreeIPA informations
 freeipa_client__interface_name_exclusions:
   - lo
@@ -29,8 +50,6 @@ freeipa_client__interface_name_exclusions:
   - br.*
   - tun.*
 
-# Set to true if this host is an IPA server
-freeipa_client__is_ipaserver: false
 
 ## FreeIPA Host informations
 freeipa_client__ipa_fqdn: '{{ inventory_hostname }}'
@@ -63,18 +82,6 @@ freeipa_client__ssh_keys_type_mapping:
   ansible_ssh_host_key_rsa_public: ssh-rsa
   ansible_ssh_host_key_dsa_public: ssh-dss
 
-## FreeIPA Client configurations
-# Main configuration directory of ipa client
-freeipa_client__config_dir: /etc/ipa
-# The path to certificate authority file
-freeipa_client__ca_path: '{{ freeipa_client__config_dir }}/ca.crt'
-#freeipa_client__ca_checksum: 
-# The full fqdn of the IPA server to use for this host
-#freeipa_client__server: ipa.demo1.freeipa.org
-# The domain of the FreeIPA server
-#freeipa_client__domain: freeipa.org
-freeipa_client__realm: '{{ freeipa_client__domain|upper }}'
-
 ## Settings for ipa-client-install
 # The path to the ipa client binary
 freeipa_client__install_command: '/sbin/ipa-client-install'
@@ -101,6 +108,16 @@ freeipa_client__enable_make_homedir: false
 freeipa_client__enable_make_homedir_profile_name: mkhomedir
 
 ## Kerberos
+# kerberos client dbmodules to apply for freeipa server
+freeipa_client__kerberos_dbmodules_server:
+  db_library: ipadb.so
+
+# kerberos client plugins to apply for freeipa server
+freeipa_client__kerberos_plugins_server:
+  certauth:
+    module: 'ipakdb:kdb/ipadb.so'
+    enable_only: ipakdb
+
 # Kerberos principal format
 freeipa_client__keytab_principal: 'host/{{ ansible_fqdn }}@{{ freeipa_client__realm }}'
 # Temporary file in which to store Keytab during exchanges
