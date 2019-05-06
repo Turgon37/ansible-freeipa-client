@@ -108,6 +108,16 @@ freeipa_client__enable_make_homedir: false
 freeipa_client__enable_make_homedir_profile_name: mkhomedir
 
 ## Kerberos
+# kerberos client dbmodules to apply for freeipa server
+freeipa_client__kerberos_dbmodules_server:
+  db_library: ipadb.so
+
+# kerberos client plugins to apply for freeipa server
+freeipa_client__kerberos_plugins_server:
+  certauth:
+    module: 'ipakdb:kdb/ipadb.so'
+    enable_only: ipakdb
+
 # Kerberos principal format
 freeipa_client__keytab_principal: 'host/{{ ansible_fqdn }}@{{ freeipa_client__realm }}'
 # Temporary file in which to store Keytab during exchanges
